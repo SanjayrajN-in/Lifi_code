@@ -1,0 +1,65 @@
+#define LASERPIN 8  
+#define MAX_TEXT_LENGTH 100
+
+char myText[MAX_TEXT_LENGTH];
+
+void setup() {
+  pinMode(LASERPIN, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("Enter text:");
+  memset(myText, 0, MAX_TEXT_LENGTH);
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    size_t i = 0;
+    while (Serial.available() > 0 && i < MAX_TEXT_LENGTH - 1) {
+      myText[i] = Serial.read();
+      if (myText[i] == '\n') {
+        break;
+      }
+      i++;
+    }
+    myText[i] = '\0';
+
+    int length = i; 
+    int ar[MAX_TEXT_LENGTH];
+    int bits[8];
+    int m;
+
+    for (int j = 0; j < length; j++) {
+      ar[j] = int(myText[j]);
+    }
+
+    for (int n = 0; n < length; n++) {
+      m = ar[n];
+      int bin[8] = {0};
+
+      for (int z = 0; z < 8; z++) {
+        bin[z] = m % 2;
+        m = m / 2;
+      }
+
+      int newbin[8];
+      for (int j = 0; j < 8; j++) {
+        newbin[j] = bin[7 - j];
+      }
+
+      for (int p = 0; p < 8; p++) {
+        bits[p] = (newbin[p] == 1) ? HIGH : LOW;
+      }
+
+      bits[0] = HIGH;
+
+      for (int q = 0; q < 8; q++) {
+        digitalWrite(LASERPIN, bits[q]);
+        delay(10);
+      }
+
+      digitalWrite(LASERPIN, LOW);
+      delay(100);
+    }
+    
+    memset(myText, 0, MAX_TEXT_LENGTH);
+  }
+}
